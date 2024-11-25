@@ -1,0 +1,82 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+*.env
+*.venv
+.Python
+
+# FastAPI logs and cache
+*.log
+*.out
+*.err
+*.db-journal
+*.sqlite3
+
+# Test and coverage reports
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.cache/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environments
+.env
+.env.*
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Docker
+docker-compose.override.yml
+*.dockerignore
+*Dockerfile*
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Distribution / packaging
+*.egg
+*.manifest
+*.spec
+
+# C extensions
+*.so
+
+# Logs and database dumps
+*.sql
+*.sqlite
+
+# Temporary files
+*.bak
+*.swp
+*.temp
+*.tmp
+~$
+
+# Node.js (if you have a frontend in the project)
+node_modules/
