@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AuthLayout from "./AuthLayout";
+import AuthLayout from "../../layouts/AuthLayout";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
