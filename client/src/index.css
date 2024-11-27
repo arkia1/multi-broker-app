@@ -10,4 +10,12 @@
   .auth-input-label {
     @apply block text-sm font-medium text-gray-600;
   }
+
+  .auth-submit-button {
+    @apply w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500;
+  }
+
+  .nav-option {
+    @apply text-white hover:text-gray-900 hover:scale-105 duration-300 font-medium;
+  }
 }

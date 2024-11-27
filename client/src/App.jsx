@@ -1,10 +1,11 @@
+import Navigation from "./components/global/Navigation";
 
 const App = () => {
   return (
     <div>
-      <div>hello</div>  
+      <Navigation />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
