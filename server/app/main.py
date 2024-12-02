@@ -1,9 +1,21 @@
 from fastapi import FastAPI, Query, HTTPException, Depends
-from app.services.news_services import fetch_financial_news
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
+from app.db import get_db
+from app.services.news_services import fetch_financial_news
+from app.services.auth_service import get_user_by_username, create_user, verify_password
+from app.schemas.user import UserRegisterRequest, UserLoginRequest
+from app.utils.jwt import create_access_token, verify_token  # JWT token utility functions
+from fastapi.security import OAuth2PasswordBearer
+
 
 app = FastAPI()
+
+#----------------------------------------------------------------------------------------------------------------------------------------------- #
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
+
+#-------------------------------------------------------------------- middlewares --------------------------------------------------------------------------- #
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,6 +24,14 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
 )
+#-------------------------------------------------------------------- root ------------------------------------------------------------------------------- #
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Multi-Broker App!"}
+
+
+#-------------------------------------------------------------------- Market_News --------------------------------------------------------------------------- #
+
 
 @app.get("/api/news")
 async def get_financial_news(
@@ -42,5 +62,66 @@ async def get_financial_news(
         return news_data
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+#-------------------------------------------------------------------- database ping --------------------------------------------------------------------------- #
+
+@app.get("/api/ping")
+def ping():
+    db = get_db()
+    # Use the database instance to query collections, etc.
+    # Example of fetching data from a collection
+    collection = db["users"]
+    user = collection.find_one({"username": "user1"})
+    return {"status": "success", "user": user}
+
+#-------------------------------------------------------------------- authentication --------------------------------------------------------------------------- #
+
+# Register a new user
+@app.post("/api/register")
+async def register_user(request: UserRegisterRequest):
+    """
+    Register a new user by providing username, email, and password.
+    """
+    try:
+        user = await create_user(request.username, request.email, request.password)
+        return {"message": "User created successfully", "user": user}
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+# Login user and return JWT token
+@app.post("/api/login")
+async def login_user(request: UserLoginRequest):
+    """
+    Login user with username and password and return JWT token.
+    """
+    user = await get_user_by_username(request.username)
+    
+    if not verify_password(request.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Generate JWT token
+    token = create_access_token(data={"sub": request.username})
+    
+    return {"access_token": token, "token_type": "bearer"}
+
+# Protected Route Example - User Profile
+@app.get("/api/profile")
+async def get_user_profile(token: str = Depends(oauth2_scheme)):
+    """
+    A protected route that requires a valid JWT token to access.
+    """
+    try:
+        payload = verify_token(token)
+        username = payload.get("sub")
+        
+        # Fetch user from DB using the username (payload["sub"])
+        user = await get_user_by_username(username)
+        return {"username": user["username"], "email": user["email"]}
+    
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")

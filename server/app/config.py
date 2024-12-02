@@ -12,3 +12,8 @@ if not API_KEY:
     raise ValueError("NEWS_API_KEY is not set in the .env file.")
 
 
+class Settings:
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    MONGO_URI: str = os.getenv("MONGO_URI")  # Ensure you have this in your .env
+
+settings = Settings()
