@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AuthLayout from "../../layouts/AuthLayout"; // Assuming the layout is stored here
+import LogoutButton from "../../components/auth/LogoutButton";
 
 const UserProfile = () => {
   const [userProfile, setUserProfile] = useState(null);
@@ -70,6 +71,9 @@ const UserProfile = () => {
           </div>
 
           {/* You can add more fields here, like account settings or other info */}
+          <LogoutButton
+            className={"border border-gray-300 px-4 py-2 rounded-md"}
+          />
         </div>
       </div>
     </AuthLayout>
