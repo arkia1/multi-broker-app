@@ -14,8 +14,13 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold text-white">Multi-Broker App</h1>
+          <div className="flex-shrink-0 cursor-pointer">
+            <img
+              src="https://via.placeholder.com/36x36?text=+" // Placeholder image
+              alt="User Account"
+              className="rounded-full" // Rounded shape
+              onClick={() => (window.location.href = "/profile")}
+            />
           </div>
 
           {/* Mobile Menu Button */}
@@ -39,13 +44,13 @@ const Navigation = () => {
             <a href="#brokers" className="nav-option">
               Brokers
             </a>
-            <a href="#market-news" className="nav-option">
+            <a href="/market-news" className="nav-option">
               Market News
             </a>
             <a href="#settings" className="nav-option">
               Settings
             </a>
-            <a href="#help" className="nav-option">
+            <a href="/support" className="nav-option">
               Help/Support
             </a>
           </div>

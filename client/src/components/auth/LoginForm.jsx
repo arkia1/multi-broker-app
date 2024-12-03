@@ -41,9 +41,9 @@ const LoginForm = () => {
       setSuccess("Login successful! Redirecting...");
 
       // Optionally, redirect after successful login
-      // setTimeout(() => {
-      //   window.location.href = "/dashboard"; // Redirect to another page if needed
-      // }, 2000);
+      setTimeout(() => {
+        window.location.href = "/dashboard"; // Redirect to another page if needed
+      }, 2000);
     } catch (err) {
       setError("Invalid credentials, please try again.");
       console.error("Login error:", err.response?.data?.detail || err.message);
@@ -54,7 +54,7 @@ const LoginForm = () => {
 
   return (
     <AuthLayout title="Login">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 ">
         <div>
           <label htmlFor="username" className="auth-input-label">
             Username
@@ -98,6 +98,9 @@ const LoginForm = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      <a href="/register" className="text-indigo-500 text-sm">
+        Don&apos;t have an account ? click here!
+      </a>
     </AuthLayout>
   );
 };

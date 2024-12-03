@@ -12,14 +12,14 @@ async def test_get_news():
 
 # @pytest.mark.asyncio
 # async def test_protected_route_without_token():
-#     async with AsyncClient(app=app, base_url="http://testserver") as client:
+#     async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
 #         response = await client.get("/api/ping")
 #     assert response.status_code == 401
 #     assert response.json()["detail"] == "Not authenticated"
 
 # @pytest.mark.asyncio
 # async def test_protected_route_with_token():
-#     async with AsyncClient(app=app, base_url="http://testserver") as client:
+#     async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
 #         # Login to get token
 #         login_response = await client.post(
 #             "/api/login",

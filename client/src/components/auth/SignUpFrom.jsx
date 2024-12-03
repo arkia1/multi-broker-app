@@ -114,6 +114,9 @@ const SignupForm = () => {
           {loading ? "Signing Up..." : "Sign Up"}
         </button>
       </form>
+      <a href="/login" className="text-indigo-500 text-sm">
+        already have an account ? click here!
+      </a>
     </AuthLayout>
   );
 };
