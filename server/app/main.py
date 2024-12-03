@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 #-------------------------------------------------------------------- root ------------------------------------------------------------------------------- #
-@app.get("/")
+@app.get("/api/")
 async def root():
     return {"message": "Welcome to the Multi-Broker App!"}
 
@@ -87,10 +87,14 @@ async def register_user(request: UserRegisterRequest):
     """
     try:
         user = await create_user(request.username, request.email, request.password)
-        return {"message": "User created successfully", "user": user}
+        return {"message": "User created successfully", "user": {"username": user["username"], "email": user["email"]}}
     except HTTPException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
-
+    except Exception as e:
+        # Log the error to understand the issue
+        print(f"Error during registration: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
 # Login user and return JWT token
 @app.post("/api/login")
 async def login_user(request: UserLoginRequest):
