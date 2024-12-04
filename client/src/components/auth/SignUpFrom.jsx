@@ -3,7 +3,7 @@ import AuthLayout from "../../layouts/AuthLayout"; // Ensure this component is s
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -60,13 +60,13 @@ const SignupForm = () => {
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {success && <p className="text-green-500 text-sm">{success}</p>}
         <div>
-          <label htmlFor="name" className="auth-input-label">
-            Name
+          <label htmlFor="username" className="auth-input-label">
+            username
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
+            id="username"
+            name="username"
             value={formData.name}
             onChange={handleChange}
             required
@@ -114,6 +114,9 @@ const SignupForm = () => {
           {loading ? "Signing Up..." : "Sign Up"}
         </button>
       </form>
+      <a href="/login" className="text-indigo-500 text-sm">
+        already have an account ? click here!
+      </a>
     </AuthLayout>
   );
 };

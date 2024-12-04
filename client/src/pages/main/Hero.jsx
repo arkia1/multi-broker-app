@@ -15,9 +15,12 @@ const HeroPage = () => {
               analyze real-time charts, and make informed decisions with ease.
             </p>
             <div className="flex gap-4">
-              <button className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg shadow-md hover:bg-gray-200">
+              <a
+                href="/login"
+                className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg shadow-md hover:bg-gray-200"
+              >
                 Get Started
-              </button>
+              </a>
               <button className="px-6 py-3 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700">
                 Learn More
               </button>

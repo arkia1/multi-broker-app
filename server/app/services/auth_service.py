@@ -2,30 +2,31 @@ from app.db import get_db
 from pymongo.errors import DuplicateKeyError
 from passlib.context import CryptContext
 from fastapi import HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
+from app.db import find_user_by_username
+import os
 
 # Initialize password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_user_by_username(username: str):
-    """
-    Fetch a user from the database by their username.
-    """
-    db = get_db()
-    collection = db["users"]
-    user = collection.find_one({"username": username})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+uri = os.getenv("MONGO_URI")
+client = AsyncIOMotorClient(uri)
+db = client["multi_broker_db"]  # Specify your database name
 
-def create_user(username: str, email: str, password: str):
+async def get_user_by_username(username: str):
+    db_user = await find_user_by_username(username)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+async def create_user(username: str, email: str, password: str):
     """
-    Create a new user in the database with a hashed password.
+    Create a new user and return the user data.
     """
-    db = get_db()
     collection = db["users"]
 
     # Check if the username already exists
-    existing_user = collection.find_one({"username": username})
+    existing_user = await collection.find_one({"username": username})
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
 
@@ -41,10 +42,12 @@ def create_user(username: str, email: str, password: str):
 
     try:
         # Insert the user into the collection
-        result = collection.insert_one(user_data)
-        return {"username": username, "email": email, "id": str(result.inserted_id)}
-    except DuplicateKeyError:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        result = await collection.insert_one(user_data)
+        # Return the user data including the inserted_id
+        user_data["_id"] = str(result.inserted_id)  # Adding the inserted ID to the returned data
+        return user_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during user creation: {str(e)}")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
