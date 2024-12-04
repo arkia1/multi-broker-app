@@ -16,9 +16,9 @@ const Navigation = () => {
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer">
             <img
-              src="https://via.placeholder.com/36x36?text=+" // Placeholder image
+              src="https://i.pravatar.cc/300" // Placeholder image
               alt="User Account"
-              className="rounded-full" // Rounded shape
+              className="rounded-full w-12" // Rounded shape
               onClick={() => (window.location.href = "/profile")}
             />
           </div>
@@ -35,21 +35,21 @@ const Navigation = () => {
 
           {/* Navigation Links */}
           <div className="hidden lg:flex space-x-6">
-            <a href="#dashboard" className="nav-option">
+            <a href="/dashboard" className="nav-option">
               Dashboard
             </a>
-            <a href="#accounts" className="nav-option">
+            {/* <a href="#accounts" className="nav-option">
               Accounts
-            </a>
-            <a href="#brokers" className="nav-option">
-              Brokers
+            </a> */}
+            <a href="/blogs" className="nav-option">
+              Blogs
             </a>
             <a href="/market-news" className="nav-option">
               Market News
             </a>
-            <a href="#settings" className="nav-option">
+            {/* <a href="#settings" className="nav-option">
               Settings
-            </a>
+            </a> */}
             <a href="/support" className="nav-option">
               Help/Support
             </a>
@@ -69,22 +69,22 @@ const Navigation = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="lg:hidden bg-indigo-600 p-4 space-y-4">
-            <a href="#dashboard" className="block nav-option">
+            <a href="/dashboard" className="block nav-option">
               Dashboard
             </a>
-            <a href="#accounts" className="block nav-option">
+            {/* <a href="#accounts" className="block nav-option">
               Accounts
+            </a> */}
+            <a href="/blogs" className="block nav-option">
+              Blogs
             </a>
-            <a href="#brokers" className="block nav-option">
-              Brokers
-            </a>
-            <a href="#market-news" className="block nav-option">
+            <a href="/market-news" className="block nav-option">
               Market News
             </a>
-            <a href="#settings" className="block nav-option">
+            {/* <a href="#settings" className="block nav-option">
               Settings
-            </a>
-            <a href="#help" className="block nav-option">
+            </a> */}
+            <a href="/support" className="block nav-option">
               Help/Support
             </a>
           </div>

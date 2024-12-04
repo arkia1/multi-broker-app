@@ -77,7 +77,7 @@ def ping():
     user = collection.find_one({"username": "user1"})
     return {"status": "success", "user": user}
 
-#-------------------------------------------------------------------- authentication --------------------------------------------------------------------------- #
+#------------------------------------------------------------- authentication and protected routes -------------------------------------------------------- #
 
 # Register a new user
 @app.post("/api/register")
