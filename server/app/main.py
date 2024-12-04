@@ -1,15 +1,21 @@
 from fastapi import FastAPI, Query, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-import httpx
+from fastapi.security import OAuth2PasswordBearer
+import httpx 
+import os
+from dotenv import load_dotenv
+
 from app.db import get_db
 from app.services.news_services import fetch_financial_news
 from app.services.auth_service import get_user_by_username, create_user, verify_password
 from app.schemas.user import UserRegisterRequest, UserLoginRequest
 from app.utils.jwt import create_access_token, verify_token  # JWT token utility functions
-from fastapi.security import OAuth2PasswordBearer
 
 
 app = FastAPI()
+
+
+load_dotenv()
 
 #----------------------------------------------------------------------------------------------------------------------------------------------- #
 
@@ -129,3 +135,7 @@ async def get_user_profile(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+
+# ---------------------------------------------------------- Blogs ----------------------------------------------------------------- #
+

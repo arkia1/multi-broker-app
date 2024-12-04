@@ -37,6 +37,11 @@ const UserProfilePage = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -152,12 +157,20 @@ const UserProfilePage = () => {
                     {userData.email}
                   </p>
                 </div>
-                <button
-                  onClick={() => setEditing(true)}
-                  className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700"
-                >
-                  Edit Profile
-                </button>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={handleLogout}
+                    className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700"
+                  >
+                    Logout
+                  </button>
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="bg-gray-300 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-400"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
               </div>
             )}
           </div>

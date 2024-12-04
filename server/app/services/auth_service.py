@@ -1,11 +1,11 @@
+
 from app.db import get_db
 from pymongo.errors import DuplicateKeyError
 from passlib.context import CryptContext
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.db import find_user_by_username
 import os
-
 # Initialize password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -54,3 +54,4 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Verify that the plain password matches the hashed password.
     """
     return pwd_context.verify(plain_password, hashed_password)
+

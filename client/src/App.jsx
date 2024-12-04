@@ -6,6 +6,7 @@ import SignUpPage from "./pages/authPages/SignUpPage";
 import SignInPage from "../src/pages/authPages/SignInPage";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import UserProfile from "./pages/profile/ProfilePage";
+import DashboardPage from "./pages/main/DashboardPage";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/market-news" element={<MarketNews />} />
             <Route path="/support" element={<Index />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
           </Route>
         </Routes>
       </Router>
