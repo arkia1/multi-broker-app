@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const BinanceData = () => {
   const [assets, setAssets] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState("");
   const [data, setData] = useState(null);
-  const [ws, setWs] = useState(null);
+  const ws = useRef(null);
 
   // Fetch available assets dynamically
   useEffect(() => {
@@ -27,34 +27,53 @@ const BinanceData = () => {
 
   // Handle WebSocket setup and cleanup
   useEffect(() => {
-    if (ws) {
-      ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        setData(message);
+    if (ws.current) {
+      ws.current.close();
+    }
+
+    if (selectedAsset) {
+      const newWs = new WebSocket(
+        `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}`
+      );
+      newWs.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          setData(data);
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
       };
 
-      ws.onclose = () => {
+      newWs.onopen = () => {
+        console.log(`Connected to WebSocket for ${selectedAsset}`);
+      };
+
+      newWs.onclose = () => {
         console.log("WebSocket disconnected");
       };
 
-      return () => {
-        ws.close(); // Cleanup WebSocket on component unmount or reconnect
-      };
+      ws.current = newWs;
     }
-  }, [ws]);
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [selectedAsset]);
 
   const connectWebSocket = () => {
-    if (ws) {
-      ws.close(); // Close any existing WebSocket connection
+    if (ws.current) {
+      ws.current.close();
     }
 
     const newWs = new WebSocket(
-      `wss://stream.binance.com:9443/ws/${selectedAsset.toLowerCase()}@ticker`
+      `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}`
     );
     newWs.onopen = () => {
       console.log(`Connected to WebSocket for ${selectedAsset}`);
     };
-    setWs(newWs);
+    ws.current = newWs;
   };
 
   return (
@@ -86,17 +105,22 @@ const BinanceData = () => {
           Connect
         </button>
       </div>
-
-      <h2 className="text-xl font-semibold mb-2">Real-time Data</h2>
-      <div className="border border-gray-300 p-4 rounded-md bg-gray-50">
-        {data ? (
-          <pre className="text-sm text-gray-800">
-            {JSON.stringify(data, null, 2)}
-          </pre>
-        ) : (
-          <p className="text-gray-500">No data yet...</p>
-        )}
-      </div>
+      {data && (
+        <div className="mt-4">
+          <h2 className="text-xl font-semibold">
+            Market Data for {selectedAsset}
+          </h2>
+          <div className="border border-gray-300 p-4 rounded-md bg-gray-50">
+            {data ? (
+              <pre className="text-sm text-gray-800">
+                {JSON.stringify(data, null, 2)}
+              </pre>
+            ) : (
+              <p className="text-gray-500">No data yet...</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

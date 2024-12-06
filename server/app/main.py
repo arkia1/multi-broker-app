@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Query, HTTPException, Depends, UploadFile, WebSocket, requests, websockets
+from fastapi import FastAPI, File, Query, HTTPException, Depends, UploadFile, WebSocket, WebSocketDisconnect, requests, websockets
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
@@ -8,6 +8,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 import httpx
+import websockets
 
 from app.services.news_services import fetch_financial_news
 from app.services.auth_service import get_user_by_username, create_user, verify_password
@@ -190,17 +191,15 @@ async def update_user_profile(
 # --------------------------------------------------------- Broker Data ----------------------------------------------------------- #
 
 #binance endpoints
-
-@app.get("/available-assets")
-def get_available_assets():
-    response = requests.get("https://api.binance.com/api/v3/exchangeInfo")
-    symbols = [symbol['symbol'] for symbol in response.json()['symbols']]
-    return {"symbols": symbols}
-
 @app.websocket("/ws/{symbol}")
 async def websocket_endpoint(websocket: WebSocket, symbol: str):
     await websocket.accept()
-    binance_ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@trade"
-    async with websockets.connect(binance_ws_url) as binance_ws:
-        async for message in binance_ws:
-            await websocket.send_text(message)
+    binance_ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@ticker"
+    try:
+        async with websockets.connect(binance_ws_url) as binance_ws:
+            async for message in binance_ws:
+                await websocket.send_text(message)
+    except WebSocketDisconnect:
+        print(f"WebSocket connection closed for {symbol}")
+    except Exception as e:
+        print(f"Error: {e}")
