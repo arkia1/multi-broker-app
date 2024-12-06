@@ -3,6 +3,7 @@ import { useUser } from "../../contexts/UserContext";
 import axios from "axios";
 import MainLayout from "../../layouts/MainLayout";
 import { Link } from "react-router-dom";
+import process from "process";
 
 const UserProfilePage = () => {
   const { userData, setUserData, loading } = useUser();
@@ -10,19 +11,42 @@ const UserProfilePage = () => {
   const [formData, setFormData] = useState({
     username: userData?.username || "",
     email: userData?.email || "",
+    url_to_image: userData?.url_to_image || "",
   });
+  const [imageFile, setImageFile] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[1]);
+  };
+
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("access_token");
+      const cloudinaryUrl = process.env.REACT_APP_CLOUDINARY_URL;
+
+      let imageUrl = formData.url_to_image;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append("upload_preset", "ml_default"); // Replace with your Cloudinary upload preset
+
+        const response = await axios.post(cloudinaryUrl, formData);
+        imageUrl = response.data.secure_url;
+      }
+
       const response = await axios.put(
         "http://localhost:8000/api/profile",
-        formData,
+        {
+          email: formData.email,
+          connected_brokers: userData.connected_brokers,
+          preferences: userData.preferences,
+          url_to_image: imageUrl,
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -110,6 +134,7 @@ const UserProfilePage = () => {
                     value={formData.username}
                     onChange={handleInputChange}
                     className="mt-2 p-3 border rounded-lg w-full"
+                    disabled
                   />
                 </div>
                 <div className="mb-6">
@@ -125,6 +150,21 @@ const UserProfilePage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    className="mt-2 p-3 border rounded-lg w-full"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label
+                    htmlFor="url_to_image"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Profile Image
+                  </label>
+                  <input
+                    type="file"
+                    id="url_to_image"
+                    name="url_to_image"
+                    onChange={handleImageChange}
                     className="mt-2 p-3 border rounded-lg w-full"
                   />
                 </div>
@@ -156,6 +196,18 @@ const UserProfilePage = () => {
                   <p className="text-lg font-semibold text-gray-800">
                     {userData.email}
                   </p>
+                </div>
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-600">
+                    Profile Image
+                  </p>
+                  {userData.url_to_image && (
+                    <img
+                      src={userData.url_to_image}
+                      alt="Profile"
+                      className="w-32 h-32 rounded-full"
+                    />
+                  )}
                 </div>
                 <div className="flex justify-end space-x-4">
                   <button

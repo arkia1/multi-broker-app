@@ -32,3 +32,5 @@ async def find_user_by_username(username: str):
     db = get_db()
     collection = db["users"]
     return await run_in_threadpool(collection.find_one, {"username": username})
+
+

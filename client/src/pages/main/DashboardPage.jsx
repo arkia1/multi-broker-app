@@ -3,6 +3,7 @@ import { useState } from "react";
 import SearchBar from "../../components/dashboard/SearchBar";
 import MainLayout from "../../layouts/MainLayout";
 import BrokerAssets from "../../components/dashboard/BrokerAssets";
+import BinanceData from "../../components/brokers/BinanceData";
 
 const DashboardPage = () => {
   // eslint-disable-next-line no-unused-vars
@@ -19,6 +20,9 @@ const DashboardPage = () => {
         <SearchBar onSearch={handleSearch} />
         <div className="">
           <BrokerAssets />
+        </div>
+        <div className="">
+          <BinanceData />
         </div>
         {/* Display search results or other charts */}
         <div className="search-results">

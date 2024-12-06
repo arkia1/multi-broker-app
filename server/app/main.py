@@ -1,15 +1,19 @@
-from fastapi import FastAPI, Query, HTTPException, Depends
+from fastapi import FastAPI, File, Query, HTTPException, Depends, UploadFile, WebSocket, requests, websockets
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-import httpx 
-import os
 from dotenv import load_dotenv
+import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+import httpx
 
-from app.db import get_db
 from app.services.news_services import fetch_financial_news
 from app.services.auth_service import get_user_by_username, create_user, verify_password
-from app.schemas.user import UserRegisterRequest, UserLoginRequest
-from app.utils.jwt import create_access_token, verify_token  # JWT token utility functions
+from app.schemas.user import UserRegisterRequest, UserLoginRequest, UserUpdateModel
+from app.utils.jwt import create_access_token, verify_token
+from app.db import get_db  # JWT token utility functions
 
 
 app = FastAPI()
@@ -17,6 +21,12 @@ app = FastAPI()
 
 load_dotenv()
 
+
+cloudinary.config(
+  cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+  api_key=os.getenv("CLOUDINARY_API_KEY"),
+  api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 #----------------------------------------------------------------------------------------------------------------------------------------------- #
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
@@ -136,6 +146,61 @@ async def get_user_profile(token: str = Depends(oauth2_scheme)):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
     
+    # Update User Profile
+
+async def update_user_by_username(username: str, user_update: UserUpdateModel):
+    db = get_db()
+    collection = db["users"]
+    update_data = user_update.dict(exclude_unset=True)
+    result = await run_in_threadpool(collection.update_one, {"username": username}, {"$set": update_data})
+    if result.modified_count == 1:
+        return await run_in_threadpool(collection.find_one, {"username": username})
+    raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.put("/api/profile")
+async def update_user_profile(
+    user_update: UserUpdateModel,
+    token: str = Depends(oauth2_scheme),
+    file: UploadFile = File(None)
+):
+    """
+    A protected route that requires a valid JWT token to update user properties.
+    """
+    try:
+        payload = verify_token(token)
+        username = payload.get("sub")
+
+        if file:
+            result = cloudinary.uploader.upload(file.file)
+            user_update.url_to_image = result["secure_url"]
+
+        # Update user in DB using the username (payload["sub"]) and user_update data
+        updated_user = await update_user_by_username(username, user_update)
+        return {"username": updated_user["username"], "email": updated_user["email"], "url_to_image": updated_user["url_to_image"]}
+    
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
 
 # ---------------------------------------------------------- Blogs ----------------------------------------------------------------- #
 
+# --------------------------------------------------------- Broker Data ----------------------------------------------------------- #
+
+#binance endpoints
+
+@app.get("/available-assets")
+def get_available_assets():
+    response = requests.get("https://api.binance.com/api/v3/exchangeInfo")
+    symbols = [symbol['symbol'] for symbol in response.json()['symbols']]
+    return {"symbols": symbols}
+
+@app.websocket("/ws/{symbol}")
+async def websocket_endpoint(websocket: WebSocket, symbol: str):
+    await websocket.accept()
+    binance_ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@trade"
+    async with websockets.connect(binance_ws_url) as binance_ws:
+        async for message in binance_ws:
+            await websocket.send_text(message)
