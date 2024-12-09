@@ -1,11 +1,11 @@
 import ReactAPexChart from "react-apexcharts";
-import PropTypes from "prop-types";
+import PropTypes, { object } from "prop-types";
 
 const CandleStickChart = ({ chartData }) => {
   const options = {
     chart: {
       type: "candlestick",
-      height: 350,
+      height: 500,
     },
     title: {
       text: "CandleStick Chart",
@@ -33,13 +33,13 @@ const CandleStickChart = ({ chartData }) => {
         options={options}
         series={series}
         type="candlestick"
-        height={350}
+        height={500}
       />
     </div>
   );
 };
 CandleStickChart.propTypes = {
-  chartData: PropTypes.object.isRequired,
+  chartData: PropTypes.array || object.isRequired,
 };
 
 export default CandleStickChart;

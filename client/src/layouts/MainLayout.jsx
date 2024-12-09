@@ -3,7 +3,7 @@ import Navigation from "../components/global/Navigation";
 
 const MainLayout = ({ children }) => {
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-screen overflow-x-hidden">
       <Navigation />
       {children}
     </div>

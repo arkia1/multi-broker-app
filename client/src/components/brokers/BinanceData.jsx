@@ -143,8 +143,10 @@ const BinanceData = () => {
         </select>
       </div>
       {combinedData.length > 0 && (
-        <div className="mt-4">
-          <CandleStickChart chartData={combinedData} />
+        <div className="relative w-screen h-screen">
+          <div className="absolute top-1/3 left-[12%]  transform -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[60vh] max-w-full">
+            <CandleStickChart chartData={combinedData} />
+          </div>
         </div>
       )}
     </div>

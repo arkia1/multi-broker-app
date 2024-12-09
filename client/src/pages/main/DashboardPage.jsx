@@ -2,7 +2,6 @@
 import { useState } from "react";
 import SearchBar from "../../components/dashboard/SearchBar";
 import MainLayout from "../../layouts/MainLayout";
-import BrokerAssets from "../../components/dashboard/BrokerAssets";
 import BinanceData from "../../components/brokers/BinanceData";
 
 const DashboardPage = () => {
@@ -16,11 +15,8 @@ const DashboardPage = () => {
 
   return (
     <MainLayout>
-      <div className="flex flex-col gap-4 justify-center items-center">
+      <div className="flex flex-col justify-center items-center">
         <SearchBar onSearch={handleSearch} />
-        <div className="">
-          <BrokerAssets />
-        </div>
         <div className="">
           <BinanceData />
         </div>
