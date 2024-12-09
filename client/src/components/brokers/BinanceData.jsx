@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import CandleStickChart from "../global/CandleStickChart";
 
 const BinanceData = () => {
   const [assets, setAssets] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState("");
-  const [data, setData] = useState(null);
+  const [historicalData, setHistoricalData] = useState([]);
+  const [liveData, setLiveData] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState("1m");
   const ws = useRef(null);
 
@@ -26,7 +28,26 @@ const BinanceData = () => {
     fetchAssets();
   }, []);
 
-  // Handle WebSocket setup and cleanup
+  // Fetch historical data whenever asset or interval changes
+  useEffect(() => {
+    const fetchHistoricalData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/binance/${selectedAsset}/${selectedInterval}`
+        );
+        const result = await response.json();
+        setHistoricalData(result);
+      } catch (error) {
+        console.error("Error fetching historical data:", error);
+      }
+    };
+
+    if (selectedAsset) {
+      fetchHistoricalData();
+    }
+  }, [selectedAsset, selectedInterval]);
+
+  // Handle WebSocket setup and live updates
   useEffect(() => {
     if (ws.current) {
       ws.current.close();
@@ -36,10 +57,11 @@ const BinanceData = () => {
       const newWs = new WebSocket(
         `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}/${selectedInterval.toLowerCase()}`
       );
+
       newWs.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          setData(data);
+          const update = JSON.parse(event.data);
+          setLiveData((prevData) => [...prevData, update]);
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
         }
@@ -63,19 +85,8 @@ const BinanceData = () => {
     };
   }, [selectedAsset, selectedInterval]);
 
-  const connectWebSocket = () => {
-    if (ws.current) {
-      ws.current.close();
-    }
-
-    const newWs = new WebSocket(
-      `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}`
-    );
-    newWs.onopen = () => {
-      console.log(`Connected to WebSocket for ${selectedAsset}`);
-    };
-    ws.current = newWs;
-  };
+  // Combine historical data with live updates
+  const combinedData = [...historicalData, ...liveData];
 
   const intervals = [
     "1s",
@@ -130,27 +141,10 @@ const BinanceData = () => {
             </option>
           ))}
         </select>
-        <button
-          onClick={connectWebSocket}
-          className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700"
-        >
-          Connect
-        </button>
       </div>
-      {data && (
+      {combinedData.length > 0 && (
         <div className="mt-4">
-          <h2 className="text-xl font-semibold">
-            Market Data for {selectedAsset}
-          </h2>
-          <div className="border border-gray-300 p-4 rounded-md bg-gray-50">
-            {data ? (
-              <pre className="text-sm text-gray-800">
-                {JSON.stringify(data, null, 2)}
-              </pre>
-            ) : (
-              <p className="text-gray-500">No data yet...</p>
-            )}
-          </div>
+          <CandleStickChart chartData={combinedData} />
         </div>
       )}
     </div>

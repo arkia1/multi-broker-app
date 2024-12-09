@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, File, Query, HTTPException, Depends, UploadFile, WebSocket, WebSocketDisconnect, requests, websockets
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -198,8 +199,51 @@ async def websocket_endpoint(websocket: WebSocket, symbol: str, interval: str):
     try:
         async with websockets.connect(binance_ws_url) as binance_ws:
             async for message in binance_ws:
-                await websocket.send_text(message)
+                raw_data = json.loads(message)
+                kline = raw_data["k"]
+                
+                # Format the data
+                formatted_data = {
+                    "x": kline["t"],  # Use the candlestick start time
+                    "y": [
+                        float(kline["o"]),  # Open price
+                        float(kline["h"]),  # High price
+                        float(kline["l"]),  # Low price
+                        float(kline["c"])   # Close price
+                    ]
+                }
+                
+                # Send formatted data to the front end
+                await websocket.send_text(json.dumps(formatted_data))
     except WebSocketDisconnect:
         print(f"WebSocket connection closed for {symbol}")
     except Exception as e:
         print(f"Error: {e}")
+
+# Get historical data from Binance
+@app.get("/api/binance/{symbol}/{interval}")
+async def get_binance_historical_data(symbol: str, interval: str):
+    """
+    Get historical data for a symbol and interval from Binance.
+    """
+    binance_api_url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(binance_api_url)
+            response.raise_for_status()
+            data = response.json()
+
+        # Format data for ApexCharts (optional)
+        formatted_data = [
+            {
+                "x": item[0],  # Start time
+                "y": [float(item[1]), float(item[2]), float(item[3]), float(item[4])]  # [open, high, low, close]
+            }
+            for item in data
+        ]
+        return formatted_data
+
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"Binance API error: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
