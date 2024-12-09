@@ -191,10 +191,10 @@ async def update_user_profile(
 # --------------------------------------------------------- Broker Data ----------------------------------------------------------- #
 
 #binance endpoints
-@app.websocket("/ws/{symbol}")
-async def websocket_endpoint(websocket: WebSocket, symbol: str):
+@app.websocket("/ws/{symbol}/{interval}")
+async def websocket_endpoint(websocket: WebSocket, symbol: str, interval: str):
     await websocket.accept()
-    binance_ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@ticker"
+    binance_ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}"
     try:
         async with websockets.connect(binance_ws_url) as binance_ws:
             async for message in binance_ws:

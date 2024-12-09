@@ -4,6 +4,7 @@ const BinanceData = () => {
   const [assets, setAssets] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState("");
   const [data, setData] = useState(null);
+  const [selectedInterval, setSelectedInterval] = useState("1m");
   const ws = useRef(null);
 
   // Fetch available assets dynamically
@@ -33,7 +34,7 @@ const BinanceData = () => {
 
     if (selectedAsset) {
       const newWs = new WebSocket(
-        `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}`
+        `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}/${selectedInterval.toLowerCase()}`
       );
       newWs.onmessage = (event) => {
         try {
@@ -60,7 +61,7 @@ const BinanceData = () => {
         ws.current.close();
       }
     };
-  }, [selectedAsset]);
+  }, [selectedAsset, selectedInterval]);
 
   const connectWebSocket = () => {
     if (ws.current) {
@@ -75,6 +76,25 @@ const BinanceData = () => {
     };
     ws.current = newWs;
   };
+
+  const intervals = [
+    "1s",
+    "1m",
+    "3m",
+    "5m",
+    "15m",
+    "30m",
+    "1h",
+    "2h",
+    "4h",
+    "6h",
+    "8h",
+    "12h",
+    "1d",
+    "3d",
+    "1w",
+    "1M",
+  ];
 
   return (
     <div className="p-4 max-w-lg mx-auto font-sans">
@@ -95,6 +115,18 @@ const BinanceData = () => {
           {assets.map((asset) => (
             <option key={asset} value={asset}>
               {asset}
+            </option>
+          ))}
+        </select>
+        <select
+          id="interval-select"
+          value={selectedInterval}
+          onChange={(e) => setSelectedInterval(e.target.value)}
+          className="mt-2 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          {intervals.map((interval) => (
+            <option key={interval} value={interval}>
+              {interval}
             </option>
           ))}
         </select>
