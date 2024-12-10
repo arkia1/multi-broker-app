@@ -1,36 +1,70 @@
-// src/components/SearchBar.js
-import { useState } from "react";
 import PropTypes from "prop-types";
+import { useState, useCallback, useEffect } from "react";
+import { debounce } from "lodash";
 
-const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
+const SearchBar = ({ assets, onSelectAsset }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredAssets, setFilteredAssets] = useState([]);
 
-  const handleSearch = () => {
-    if (query.trim()) {
-      onSearch(query);
-    }
-  };
+  // Handle search term changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleSearch = useCallback(
+    debounce((term) => {
+      if (term) {
+        const filtered = assets.filter((asset) =>
+          asset.toLowerCase().includes(term.toLowerCase())
+        );
+        setFilteredAssets(filtered);
+      } else {
+        setFilteredAssets([]);
+      }
+    }, 300),
+    [assets]
+  );
+
+  useEffect(() => {
+    handleSearch(searchTerm);
+  }, [handleSearch, searchTerm]);
 
   return (
-    <div className="border rounded-md p-2 mt-4">
-      <input
-        type="text"
-        placeholder="Search for assets or trades..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <button
-        onClick={handleSearch}
-        className="ml-2 border-transparent rounded-md px-2 py-1 bg-indigo-500 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+    <div className="flex-1">
+      <label
+        htmlFor="search-input"
+        className="block text-sm font-medium text-gray-700"
       >
-        Search
-      </button>
+        Search Asset:
+      </label>
+      <input
+        id="search-input"
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mt-2 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+      />
+      {filteredAssets.length > 0 && (
+        <ul className="mt-2 border border-gray-300 rounded-md shadow-sm max-h-60 overflow-y-auto">
+          {filteredAssets.map((asset) => (
+            <li
+              key={asset}
+              onClick={() => {
+                onSelectAsset(asset);
+                setSearchTerm(asset);
+                setFilteredAssets([]); // Clear suggestions after selection
+              }}
+              className="cursor-pointer p-2 hover:bg-gray-200"
+            >
+              {asset}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
 
 SearchBar.propTypes = {
-  onSearch: PropTypes.func.isRequired,
+  assets: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onSelectAsset: PropTypes.func.isRequired,
 };
 
 export default SearchBar;
