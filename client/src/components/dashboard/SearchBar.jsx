@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes, { any } from "prop-types";
 import { useState, useCallback, useEffect } from "react";
 import { debounce } from "lodash";
 
@@ -51,7 +51,7 @@ const SearchBar = ({ assets, onSelectAsset }) => {
                 setSearchTerm(asset);
                 setFilteredAssets([]); // Clear suggestions after selection
               }}
-              className="cursor-pointer p-2 hover:bg-gray-200"
+              className="p-2 cursor-pointer hover:bg-gray-200"
             >
               {asset}
             </li>
@@ -64,7 +64,7 @@ const SearchBar = ({ assets, onSelectAsset }) => {
 
 SearchBar.propTypes = {
   assets: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onSelectAsset: PropTypes.func.isRequired,
+  onSelectAsset: PropTypes.func || any.isRequired,
 };
 
 export default SearchBar;

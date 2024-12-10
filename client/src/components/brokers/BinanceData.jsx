@@ -1,8 +1,10 @@
 import { debounce } from "lodash";
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import CandleStickChart from "../global/CandleStickChart";
 import BINANCE_LOGO from "../../assets/binance-logo.svg";
 import axiosInstance from "../../api/axios"; // Import axios instance
+import SearchBar from "../dashboard/SearchBar";
+import IntervalSelector from "../dashboard/TimeIntervalDropDown";
 
 const BinanceData = () => {
   const [assets, setAssets] = useState([]);
@@ -10,8 +12,6 @@ const BinanceData = () => {
   const [historicalData, setHistoricalData] = useState([]);
   const [liveData, setLiveData] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState("1m");
-  const [searchTerm, setSearchTerm] = useState(""); // Search term for asset filtering
-  const [filteredAssets, setFilteredAssets] = useState([]); // Filtered assets based on search term
   const ws = useRef(null);
 
   // Fetch available assets dynamically
@@ -31,25 +31,6 @@ const BinanceData = () => {
 
     fetchAssets();
   }, []);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleSearch = useCallback(
-    debounce((term) => {
-      if (term) {
-        const filtered = assets.filter((asset) =>
-          asset.toLowerCase().includes(term.toLowerCase())
-        );
-        setFilteredAssets(filtered);
-      } else {
-        setFilteredAssets([]);
-      }
-    }, 300),
-    [assets]
-  );
-
-  useEffect(() => {
-    handleSearch(searchTerm);
-  }, [handleSearch, searchTerm]);
 
   // Fetch historical data whenever asset or interval changes
   useEffect(() => {
@@ -136,8 +117,8 @@ const BinanceData = () => {
 
   return (
     <div className="p-4 max-w-lg mx-auto font-sans">
-      <h1 className="text-2xl font-bold mb-4"></h1>
-      <div className=" mb-4 flex items-center space-x-4">
+      <h1 className="text-2xl font-bold mb-2"></h1>
+      <div className=" mb-2 flex items-center space-x-4">
         <div className="w-10 h-10 bg-transparent rounded-full flex items-center justify-center">
           {/* Placeholder for broker's logo */}
           <img src={BINANCE_LOGO} alt="" />
@@ -147,58 +128,12 @@ const BinanceData = () => {
         </div>
       </div>
       <div className="mb-4 flex space-x-4">
-        <div className="flex-1">
-          <label
-            htmlFor="search-input"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Search Asset:
-          </label>
-          <input
-            id="search-input"
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="mt-2 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          />
-          {filteredAssets.length > 0 && (
-            <ul className="mt-2 border border-gray-300 rounded-md shadow-sm max-h-60 overflow-y-auto">
-              {filteredAssets.map((asset) => (
-                <li
-                  key={asset}
-                  onClick={() => {
-                    setSelectedAsset(asset);
-                    setSearchTerm(asset);
-                    setFilteredAssets([]); // Clear suggestions after selection
-                  }}
-                  className="p-2 cursor-pointer hover:bg-gray-200"
-                >
-                  {asset}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="flex-1">
-          <label
-            htmlFor="interval-select"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Interval:
-          </label>
-          <select
-            id="interval-select"
-            value={selectedInterval}
-            onChange={(e) => setSelectedInterval(e.target.value)}
-            className="mt-2 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {intervals.map((interval) => (
-              <option key={interval} value={interval}>
-                {interval}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SearchBar assets={assets} onSelectAsset={setSelectedAsset} />
+        <IntervalSelector
+          intervals={intervals}
+          selectedInterval={selectedInterval}
+          onSelectInterval={setSelectedInterval}
+        />
       </div>
       {combinedData.length > 0 && (
         <div className="relative w-screen h-screen">
