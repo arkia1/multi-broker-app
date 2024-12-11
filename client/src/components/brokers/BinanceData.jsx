@@ -1,14 +1,15 @@
 import { debounce } from "lodash";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useContext } from "react";
 import CandleStickChart from "../global/CandleStickChart";
 import BINANCE_LOGO from "../../assets/binance-logo.svg";
 import axiosInstance from "../../api/axios"; // Import axios instance
 import SearchBar from "../dashboard/SearchBar";
 import IntervalSelector from "../dashboard/TimeIntervalDropDown";
+import { SelectedAssetContext } from "../../contexts/SelectedAssetContext"; // Import the context
 
 const BinanceData = () => {
+  const { selectedAsset, setSelectedAsset } = useContext(SelectedAssetContext); // Use the context
   const [assets, setAssets] = useState([]);
-  const [selectedAsset, setSelectedAsset] = useState("");
   const [historicalData, setHistoricalData] = useState([]);
   const [liveData, setLiveData] = useState([]);
   const [selectedInterval, setSelectedInterval] = useState("1m");
@@ -30,7 +31,7 @@ const BinanceData = () => {
     };
 
     fetchAssets();
-  }, []);
+  }, [setSelectedAsset]);
 
   // Fetch historical data whenever asset or interval changes
   useEffect(() => {

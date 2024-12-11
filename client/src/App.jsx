@@ -7,27 +7,29 @@ import SignInPage from "../src/pages/authPages/SignInPage";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import UserProfile from "./pages/profile/ProfilePage";
 import DashboardPage from "./pages/main/DashboardPage";
+import { SelectedAssetProvider } from "./contexts/SelectedAssetContext";
 
 const App = () => {
   return (
     <div>
-      <Router>
-        <Routes>
-          {/* general routes */}
+      <SelectedAssetProvider>
+        <Router>
+          <Routes>
+            {/* general routes */}
+            <Route path="/" element={<Hero />} />
+            <Route path="/register" element={<SignUpPage />} />
+            <Route path="/login" element={<SignInPage />} />
 
-          <Route path="/" element={<Hero />} />
-          <Route path="/register" element={<SignUpPage />} />
-          <Route path="/login" element={<SignInPage />} />
-
-          {/* authenticated routes (protected) */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/market-news" element={<MarketNews />} />
-            <Route path="/support" element={<Index />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-          </Route>
-        </Routes>
-      </Router>
+            {/* authenticated routes (protected) */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/market-news" element={<MarketNews />} />
+              <Route path="/support" element={<Index />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+            </Route>
+          </Routes>
+        </Router>
+      </SelectedAssetProvider>
     </div>
   );
 };

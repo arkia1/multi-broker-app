@@ -27,3 +27,5 @@ async def fetch_financial_news(query: str = "finance", page: int = 1, page_size:
         response = await client.get(NEWS_API_URL, params=params)
         response.raise_for_status()  # Will raise an exception if the status code is not 200
         return response.json()
+
+    

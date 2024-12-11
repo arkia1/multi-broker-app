@@ -247,3 +247,27 @@ async def get_binance_historical_data(symbol: str, interval: str):
         raise HTTPException(status_code=e.response.status_code, detail=f"Binance API error: {e.response.text}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+
+# --------------------------------------------------------- related asset news ----------------------------------------------------------- #
+NEWSAPI_API_KEY = os.getenv("NEWS_API_KEY")
+
+@app.get("/api/news/{symbol}")
+async def get_asset_news(symbol: str):
+    url = f"https://newsapi.org/v2/everything?q={symbol}&apiKey={NEWSAPI_API_KEY}&language=en&pageSize=20"
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            if "status" in data and data["status"] != "ok":
+                raise HTTPException(status_code=400, detail=data.get("message", "Error fetching news"))
+            
+            # Filter out removed articles
+            articles = [article for article in data["articles"] if not article.get("removed", False)]
+            
+            return articles
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"NewsAPI error: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
