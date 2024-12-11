@@ -4,6 +4,7 @@ import axios from "axios";
 import MainLayout from "../../layouts/MainLayout";
 import { Link } from "react-router-dom";
 import process from "process";
+import Modal from "../../components/global/Modal";
 
 const UserProfilePage = () => {
   const { userData, setUserData, loading } = useUser();
@@ -14,6 +15,7 @@ const UserProfilePage = () => {
     url_to_image: userData?.url_to_image || "",
   });
   const [imageFile, setImageFile] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +64,7 @@ const UserProfilePage = () => {
   };
 
   const handleLogout = () => {
+    setShowModal(false);
     localStorage.removeItem("access_token");
     window.location.href = "/login";
   };
@@ -100,11 +103,11 @@ const UserProfilePage = () => {
             <li className="cursor-pointer py-3 px-4 bg-gray-200 rounded-md font-medium">
               Profile
             </li>
-            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium">
-              Account
+            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium text-gray-500">
+              Account ( under maintenance )
             </li>
-            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium">
-              Privacy
+            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium text-gray-500">
+              Privacy ( under maintenance )
             </li>
           </ul>
           <div className="p-6 border-t">
@@ -211,7 +214,7 @@ const UserProfilePage = () => {
                 </div>
                 <div className="flex justify-end space-x-4">
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setShowModal(true)}
                     className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700"
                   >
                     Logout
@@ -227,6 +230,16 @@ const UserProfilePage = () => {
             )}
           </div>
         </div>
+        {showModal && (
+          <Modal
+            title="Confirm Logout"
+            content="Are you sure you want to log out?"
+            onClose={() => setShowModal(false)}
+            onConfirm={handleLogout}
+            confirmText="Logout"
+            cancelText="Cancel"
+          />
+        )}
       </div>
     </MainLayout>
   );

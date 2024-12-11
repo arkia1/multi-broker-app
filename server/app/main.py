@@ -1,4 +1,5 @@
 import json
+from typing import List
 from fastapi import FastAPI, File, Query, HTTPException, Depends, UploadFile, WebSocket, WebSocketDisconnect, requests, websockets
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +10,9 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 import httpx
+from pydantic import BaseModel
 import websockets
+from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.services.news_services import fetch_financial_news
 from app.services.auth_service import get_user_by_username, create_user, verify_password
@@ -271,3 +274,65 @@ async def get_asset_news(symbol: str):
         raise HTTPException(status_code=e.response.status_code, detail=f"NewsAPI error: {e.response.text}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+# --------------------------------------------------------- user asset watchlist ----------------------------------------------------------- #
+
+# MongoDB connection
+client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
+db = client["multi_broker_db"]
+
+class WatchlistItem(BaseModel):
+    asset: str
+
+class WatchlistResponse(BaseModel):
+    user_id: str
+    assets: List[str]
+
+@app.post("/api/watchlist", response_model=WatchlistResponse)
+async def add_to_watchlist(item: WatchlistItem, token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    watchlist = await db.watchlists.find_one({"user_id": user_id})
+    if watchlist:
+        if item.asset not in watchlist["assets"]:
+            watchlist["assets"].append(item.asset)
+            await db.watchlists.update_one({"user_id": user_id}, {"$set": {"assets": watchlist["assets"]}})
+    else:
+        await db.watchlists.insert_one({"user_id": user_id, "assets": [item.asset]})
+
+    updated_watchlist = await db.watchlists.find_one({"user_id": user_id})
+    return WatchlistResponse(user_id=user_id, assets=updated_watchlist["assets"])
+
+@app.delete("/api/watchlist/{asset}", response_model=WatchlistResponse)
+async def remove_from_watchlist(asset: str, token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    watchlist = await db.watchlists.find_one({"user_id": user_id})
+    if not watchlist:
+        raise HTTPException(status_code=404, detail="Watchlist not found")
+
+    if asset in watchlist["assets"]:
+        watchlist["assets"].remove(asset)
+        await db.watchlists.update_one({"user_id": user_id}, {"$set": {"assets": watchlist["assets"]}})
+
+    updated_watchlist = await db.watchlists.find_one({"user_id": user_id})
+    return WatchlistResponse(user_id=user_id, assets=updated_watchlist["assets"])
+
+@app.get("/api/watchlist", response_model=WatchlistResponse)
+async def get_watchlist(token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    watchlist = await db.watchlists.find_one({"user_id": user_id})
+    if not watchlist:
+        return WatchlistResponse(user_id=user_id, assets=[])
+
+    return WatchlistResponse(user_id=user_id, assets=watchlist["assets"])
