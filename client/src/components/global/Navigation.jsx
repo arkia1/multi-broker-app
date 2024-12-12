@@ -1,5 +1,6 @@
-import { FaSearch } from "react-icons/fa";
 import { useState } from "react";
+import DarkModeToggle from "../global/DarkModeToggle"; // Import the DarkModeToggle component
+import { FaSearch } from "react-icons/fa";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,14 +56,9 @@ const Navigation = () => {
             </a>
           </div>
 
-          {/* Search Icon for large screens */}
-          <div className="hidden lg:block">
-            <button className="group hover:text-indigo-600 focus:outline-none">
-              <FaSearch
-                size={20}
-                className="text-white group-hover:text-gray-900 transition-colors duration-300 hover:scale-105"
-              />
-            </button>
+          {/* Dark Mode Toggle for large screens */}
+          <div className="hidden md:block">
+            <DarkModeToggle />
           </div>
         </div>
 

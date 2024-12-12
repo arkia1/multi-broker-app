@@ -125,7 +125,9 @@ const BinanceData = () => {
           <img src={BINANCE_LOGO} alt="" />
         </div>
         <div>
-          <h2 className="text-xl font-semibold">{selectedAsset}</h2>
+          <h2 className="text-xl font-semibold dark:text-gray-200">
+            {selectedAsset}
+          </h2>
         </div>
       </div>
       <div className="mb-4 flex space-x-4">

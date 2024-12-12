@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { SelectedAssetContext } from "../../contexts/SelectedAssetContext";
+import { FaTrash } from "react-icons/fa";
 
 const UserWatchlist = () => {
   const { setSelectedAsset } = useContext(SelectedAssetContext);
@@ -115,24 +116,26 @@ const UserWatchlist = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-full p-4 bg-gray-200 rounded-md shadow-md">
-      <h2 className="text-lg font-semibold mb-4">User Watchlist</h2>
+    <div className="flex flex-col items-center w-full h-full p-4 bg-gray-200 dark:bg-gray-800 rounded-md shadow-md">
+      <h2 className="text-lg font-semibold mb-4 dark:text-gray-200">
+        User Watchlist
+      </h2>
       <div className="w-full mb-4 relative">
         <input
           type="text"
           value={newAsset}
           onChange={handleInputChange}
           placeholder="Add new asset"
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
         />
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         {filteredAssets.length > 0 && (
-          <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <ul className="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
             {filteredAssets.map((asset) => (
               <li
                 key={asset}
                 onClick={() => handleSelectAsset(asset)}
-                className="p-2 cursor-pointer hover:bg-gray-200"
+                className="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
               >
                 {asset}
               </li>
@@ -141,7 +144,7 @@ const UserWatchlist = () => {
         )}
         <button
           onClick={handleAddAsset}
-          className="mt-2 w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
+          className="mt-2 w-1/4 bg-indigo-600 text-white py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-indigo-600 duration-300"
         >
           Add Asset
         </button>
@@ -150,15 +153,15 @@ const UserWatchlist = () => {
         {watchlist.map((asset, index) => (
           <li
             key={index}
-            className="flex justify-between items-center p-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-100"
+            className="bg-white dark:bg-gray-700 flex justify-between items-center p-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
             onClick={() => setSelectedAsset(asset)}
           >
-            <span>{asset}</span>
+            <span className="dark:text-gray-200">{asset}</span>
             <button
               onClick={() => handleRemoveAsset(asset)}
-              className="bg-red-600 text-white py-1 px-2 rounded-md hover:bg-red-700"
+              className="text-indigo-600 py-1 px-2 rounded-md hover:bg-indigo-600 hover:text-gray-100 duration-300"
             >
-              Remove
+              <FaTrash />
             </button>
           </li>
         ))}

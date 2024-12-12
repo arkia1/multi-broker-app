@@ -57,8 +57,8 @@ const AssetNews = () => {
   };
 
   return (
-    <div className="flex flex-col flex-1 justify-center items-center rounded-md bg-gray-200 w-[30vw] h-[40vh] overflow-y-auto hide-scrollbar">
-      <h2 className="text-lg font-semibold my-2">
+    <div className="flex flex-col flex-1 justify-center items-center rounded-md bg-gray-200 dark:bg-gray-800 w-[30vw] h-[40vh] overflow-y-auto hide-scrollbar">
+      <h2 className="text-lg font-semibold my-2 dark:text-gray-200">
         <span className="font-semibold mr-2">{selectedAsset}</span>
         <span>News</span>
       </h2>

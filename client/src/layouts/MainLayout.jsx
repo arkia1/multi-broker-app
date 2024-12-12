@@ -3,7 +3,7 @@ import Navigation from "../components/global/Navigation";
 
 const MainLayout = ({ children }) => {
   return (
-    <div className="w-screen h-screen overflow-x-hidden flex flex-col">
+    <div className="w-screen h-screen overflow-x-hidden flex flex-col dark:bg-gray-700">
       <Navigation />
       <div className="flex-grow">{children}</div>
       <Footer />

@@ -93,32 +93,34 @@ const UserProfilePage = () => {
 
   return (
     <MainLayout>
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         {/* Sidebar */}
-        <div className="w-1/4 h-full bg-gray-100 border-r border-gray-300 flex flex-col">
-          <h2 className="text-xl font-bold text-gray-700 p-6 border-b">
+        <div className="w-1/4 h-full bg-gray-100 dark:bg-gray-800 border-r border-gray-300 dark:border-gray-700 flex flex-col">
+          <h2 className="text-xl font-bold text-gray-700 dark:text-gray-200 p-6 border-b dark:border-gray-700">
             Settings
           </h2>
           <ul className="flex-grow space-y-4 p-6">
-            <li className="cursor-pointer py-3 px-4 bg-gray-200 rounded-md font-medium">
+            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md font-medium text-gray-700 dark:text-gray-200">
               Profile
             </li>
-            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium text-gray-500">
+            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md font-medium text-gray-500 dark:text-gray-400">
               Account ( under maintenance )
             </li>
-            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium text-gray-500">
+            <li className="cursor-pointer py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md font-medium text-gray-500 dark:text-gray-400">
               Privacy ( under maintenance )
             </li>
           </ul>
-          <div className="p-6 border-t">
-            <p className="text-sm text-gray-500">Multi-Broker App © 2024</p>
+          <div className="p-6 border-t dark:border-gray-700">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Multi-Broker App © 2024
+            </p>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 h-full p-10">
-          <div className="bg-white shadow-lg rounded-lg h-full p-8 border">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        <div className="flex-1 h-full p-10 bg-white dark:bg-gray-900">
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg h-full p-8 border dark:border-gray-700">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">
               User Profile
             </h1>
             {editing ? (
@@ -126,7 +128,7 @@ const UserProfilePage = () => {
                 <div className="mb-6">
                   <label
                     htmlFor="username"
-                    className="block text-sm font-medium text-gray-600"
+                    className="block text-sm font-medium text-gray-600 dark:text-gray-300"
                   >
                     Username
                   </label>
@@ -136,14 +138,14 @@ const UserProfilePage = () => {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className="mt-2 p-3 border rounded-lg w-full"
+                    className="mt-2 p-3 border rounded-lg w-1/2 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                     disabled
                   />
                 </div>
                 <div className="mb-6">
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-600"
+                    className="block text-sm font-medium text-gray-600 dark:text-gray-300"
                   >
                     Email
                   </label>
@@ -153,13 +155,13 @@ const UserProfilePage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-2 p-3 border rounded-lg w-full"
+                    className="mt-2 p-3 border rounded-lg w-1/2 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                   />
                 </div>
                 <div className="mb-6">
                   <label
                     htmlFor="url_to_image"
-                    className="block text-sm font-medium text-gray-600"
+                    className="block text-sm font-medium text-gray-600 dark:text-gray-300"
                   >
                     Profile Image
                   </label>
@@ -168,19 +170,19 @@ const UserProfilePage = () => {
                     id="url_to_image"
                     name="url_to_image"
                     onChange={handleImageChange}
-                    className="mt-2 p-3 border rounded-lg w-full"
+                    className="mt-2 p-3 border rounded-lg w-1/2 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                   />
                 </div>
                 <div className="flex justify-end space-x-4">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700"
+                    className="bg-indigo-600 text-gray-100 py-2 px-6 rounded-lg hover:text-indigo-600 duration-300 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-indigo-600"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setEditing(false)}
-                    className="bg-gray-300 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-400"
+                    className="bg-gray-300 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                   >
                     Cancel
                   </button>
@@ -189,19 +191,23 @@ const UserProfilePage = () => {
             ) : (
               <div>
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-600">Username</p>
-                  <p className="text-lg font-semibold text-gray-800">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    Username
+                  </p>
+                  <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                     {userData.username}
                   </p>
                 </div>
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-600">Email</p>
-                  <p className="text-lg font-semibold text-gray-800">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    Email
+                  </p>
+                  <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                     {userData.email}
                   </p>
                 </div>
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
                     Profile Image
                   </p>
                   {userData.url_to_image && (
@@ -215,13 +221,13 @@ const UserProfilePage = () => {
                 <div className="flex justify-end space-x-4">
                   <button
                     onClick={() => setShowModal(true)}
-                    className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700"
+                    className="bg-indigo-600 text-gray-100 py-2 px-6 rounded-lg hover:text-indigo-600 duration-300 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-indigo-600"
                   >
                     Logout
                   </button>
                   <button
                     onClick={() => setEditing(true)}
-                    className="bg-gray-300 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-400"
+                    className="bg-gray-300 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                   >
                     Edit Profile
                   </button>

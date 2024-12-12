@@ -4,27 +4,55 @@
 
 @layer components {
   .auth-input {
-    @apply w-full px-4 py-2 mt-1 text-gray-700 bg-gray-100 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500;
+    @apply w-full px-4 py-2 mt-1 text-gray-700 bg-gray-100 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600;
   }
 
   .auth-input-label {
-    @apply block text-sm font-medium text-gray-600;
+    @apply block text-sm font-medium text-gray-600 dark:text-gray-300;
   }
 
   .auth-submit-button {
-    @apply w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500;
+    @apply w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-800 dark:hover:bg-indigo-900;
   }
 
   .nav-option {
-    @apply text-white hover:text-gray-900 hover:scale-105 duration-300 font-medium;
+    @apply text-white hover:bg-indigo-700 p-2 rounded-md duration-300 font-medium dark:text-gray-300 dark:hover:bg-indigo-900;
   }
 
   .email-input {
-    @apply w-full p-4 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 ease-in-out;
+    @apply w-full p-4 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-300 ease-in-out dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600;
   }
 
   .email-labels {
-    @apply block text-lg font-medium text-gray-700;
+    @apply block text-lg font-medium text-gray-700 dark:text-gray-300;
+  }
+
+  .profile-li {
+    @apply cursor-pointer py-3 px-4 hover:bg-gray-200 rounded-md font-medium dark:hover:bg-gray-700;
+  }
+
+  .modal-bg {
+    @apply bg-white dark:bg-gray-800;
+  }
+
+  .modal-title {
+    @apply text-lg font-semibold mb-4 dark:text-gray-200;
+  }
+
+  .modal-content {
+    @apply mb-4 dark:text-gray-400;
+  }
+
+  .modal-button {
+    @apply px-4 py-2 rounded-md;
+  }
+
+  .modal-button-cancel {
+    @apply bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600;
+  }
+
+  .modal-button-confirm {
+    @apply bg-indigo-600 text-gray-100 hover:text-indigo-600 duration-300 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-indigo-600;
   }
 }
 

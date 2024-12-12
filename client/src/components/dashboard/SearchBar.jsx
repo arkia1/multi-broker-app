@@ -30,7 +30,7 @@ const SearchBar = ({ assets, onSelectAsset }) => {
     <div className="flex-1">
       <label
         htmlFor="search-input"
-        className="block text-sm font-medium text-gray-700"
+        className="block text-sm font-medium text-gray-700 dark:text-gray-200"
       >
         Search Asset:
       </label>
@@ -39,7 +39,7 @@ const SearchBar = ({ assets, onSelectAsset }) => {
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="mt-2 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        className="mt-2 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-200"
       />
       {filteredAssets.length > 0 && (
         <ul className="mt-2 border border-gray-300 rounded-md shadow-sm max-h-60 overflow-y-auto">
