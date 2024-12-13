@@ -1,16 +1,37 @@
-from fastapi import FastAPI, Query, HTTPException, Depends
+import json
+from typing import List
+from fastapi import FastAPI, File, Query, HTTPException, Depends, UploadFile, WebSocket, WebSocketDisconnect, requests, websockets
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
+from dotenv import load_dotenv
+import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 import httpx
-from app.db import get_db
+from pydantic import BaseModel
+import websockets
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from app.services.news_services import fetch_financial_news
 from app.services.auth_service import get_user_by_username, create_user, verify_password
-from app.schemas.user import UserRegisterRequest, UserLoginRequest
-from app.utils.jwt import create_access_token, verify_token  # JWT token utility functions
-from fastapi.security import OAuth2PasswordBearer
+from app.schemas.user import UserRegisterRequest, UserLoginRequest, UserUpdateModel
+from app.utils.jwt import create_access_token, verify_token
+from app.db import get_db  # JWT token utility functions
 
 
 app = FastAPI()
 
+
+load_dotenv()
+
+
+cloudinary.config(
+  cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+  api_key=os.getenv("CLOUDINARY_API_KEY"),
+  api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 #----------------------------------------------------------------------------------------------------------------------------------------------- #
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
@@ -129,3 +150,189 @@ async def get_user_profile(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
+    
+    # Update User Profile
+
+async def update_user_by_username(username: str, user_update: UserUpdateModel):
+    db = get_db()
+    collection = db["users"]
+    update_data = user_update.dict(exclude_unset=True)
+    result = await run_in_threadpool(collection.update_one, {"username": username}, {"$set": update_data})
+    if result.modified_count == 1:
+        return await run_in_threadpool(collection.find_one, {"username": username})
+    raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.put("/api/profile")
+async def update_user_profile(
+    user_update: UserUpdateModel,
+    token: str = Depends(oauth2_scheme),
+    file: UploadFile = File(None)
+):
+    """
+    A protected route that requires a valid JWT token to update user properties.
+    """
+    try:
+        payload = verify_token(token)
+        username = payload.get("sub")
+
+        if file:
+            result = cloudinary.uploader.upload(file.file)
+            user_update.url_to_image = result["secure_url"]
+
+        # Update user in DB using the username (payload["sub"]) and user_update data
+        updated_user = await update_user_by_username(username, user_update)
+        return {"username": updated_user["username"], "email": updated_user["email"], "url_to_image": updated_user["url_to_image"]}
+    
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+
+# ---------------------------------------------------------- Blogs ----------------------------------------------------------------- #
+
+# --------------------------------------------------------- Broker Data ----------------------------------------------------------- #
+
+#binance endpoints
+@app.websocket("/ws/{symbol}/{interval}")
+async def websocket_endpoint(websocket: WebSocket, symbol: str, interval: str):
+    await websocket.accept()
+    binance_ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}"
+    try:
+        async with websockets.connect(binance_ws_url) as binance_ws:
+            async for message in binance_ws:
+                raw_data = json.loads(message)
+                kline = raw_data["k"]
+                
+                # Format the data
+                formatted_data = {
+                    "x": kline["t"],  # Use the candlestick start time
+                    "y": [
+                        float(kline["o"]),  # Open price
+                        float(kline["h"]),  # High price
+                        float(kline["l"]),  # Low price
+                        float(kline["c"])   # Close price
+                    ]
+                }
+                
+                # Send formatted data to the front end
+                await websocket.send_text(json.dumps(formatted_data))
+    except WebSocketDisconnect:
+        print(f"WebSocket connection closed for {symbol}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+# Get historical data from Binance
+@app.get("/api/binance/{symbol}/{interval}")
+async def get_binance_historical_data(symbol: str, interval: str):
+    """
+    Get historical data for a symbol and interval from Binance.
+    """
+    binance_api_url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(binance_api_url)
+            response.raise_for_status()
+            data = response.json()
+
+        # Format data for ApexCharts (optional)
+        formatted_data = [
+            {
+                "x": item[0],  # Start time
+                "y": [float(item[1]), float(item[2]), float(item[3]), float(item[4])]  # [open, high, low, close]
+            }
+            for item in data
+        ]
+        return formatted_data
+
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"Binance API error: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+
+# --------------------------------------------------------- related asset news ----------------------------------------------------------- #
+NEWSAPI_API_KEY = os.getenv("NEWS_API_KEY")
+
+@app.get("/api/news/{symbol}")
+async def get_asset_news(symbol: str):
+    url = f"https://newsapi.org/v2/everything?q={symbol}&apiKey={NEWSAPI_API_KEY}&language=en&pageSize=20"
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            if "status" in data and data["status"] != "ok":
+                raise HTTPException(status_code=400, detail=data.get("message", "Error fetching news"))
+            
+            # Filter out removed articles
+            articles = [article for article in data["articles"] if not article.get("removed", False)]
+            
+            return articles
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"NewsAPI error: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+# --------------------------------------------------------- user asset watchlist ----------------------------------------------------------- #
+
+# MongoDB connection
+client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
+db = client["multi_broker_db"]
+
+class WatchlistItem(BaseModel):
+    asset: str
+
+class WatchlistResponse(BaseModel):
+    user_id: str
+    assets: List[str]
+
+@app.post("/api/watchlist", response_model=WatchlistResponse)
+async def add_to_watchlist(item: WatchlistItem, token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    watchlist = await db.watchlists.find_one({"user_id": user_id})
+    if watchlist:
+        if item.asset not in watchlist["assets"]:
+            watchlist["assets"].append(item.asset)
+            await db.watchlists.update_one({"user_id": user_id}, {"$set": {"assets": watchlist["assets"]}})
+    else:
+        await db.watchlists.insert_one({"user_id": user_id, "assets": [item.asset]})
+
+    updated_watchlist = await db.watchlists.find_one({"user_id": user_id})
+    return WatchlistResponse(user_id=user_id, assets=updated_watchlist["assets"])
+
+@app.delete("/api/watchlist/{asset}", response_model=WatchlistResponse)
+async def remove_from_watchlist(asset: str, token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    watchlist = await db.watchlists.find_one({"user_id": user_id})
+    if not watchlist:
+        raise HTTPException(status_code=404, detail="Watchlist not found")
+
+    if asset in watchlist["assets"]:
+        watchlist["assets"].remove(asset)
+        await db.watchlists.update_one({"user_id": user_id}, {"$set": {"assets": watchlist["assets"]}})
+
+    updated_watchlist = await db.watchlists.find_one({"user_id": user_id})
+    return WatchlistResponse(user_id=user_id, assets=updated_watchlist["assets"])
+
+@app.get("/api/watchlist", response_model=WatchlistResponse)
+async def get_watchlist(token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    watchlist = await db.watchlists.find_one({"user_id": user_id})
+    if not watchlist:
+        return WatchlistResponse(user_id=user_id, assets=[])
+
+    return WatchlistResponse(user_id=user_id, assets=watchlist["assets"])

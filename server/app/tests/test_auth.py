@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from app.main import app
 
 
-# ------------------------------------------------------------ Register User ------------------------------------------------------------- #
+#------------------------------------------------------------ Register User ------------------------------------------------------------- #
 
 @pytest.mark.asyncio
 async def test_register_user():
@@ -14,19 +14,19 @@ async def test_register_user():
         )
     assert response.status_code == 200 or 201
 
-# @pytest.mark.asyncio
-# async def test_register_existing_user():
-#     async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
-#         # Attempting to register the same user again
-#         response = await client.post(
-#             "/api/register",
-#             json={"username": "BBBBB", "email": "BBBBB@example.com", "password": "testpassword"}
-#         )
-#     assert response.status_code == 400
-#     assert response.json()["detail"] == "Username already exists"
+@pytest.mark.asyncio
+async def test_register_existing_user():
+    async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
+        # Attempting to register the same user again
+        response = await client.post(
+            "/api/register",
+            json={"username": "BBBBB", "email": "BBBBB@example.com", "password": "testpassword"}
+        )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Username already exists"
 
 
-# ------------------------------------------------------------ Login User ------------------------------------------------------------- #
+#------------------------------------------------------------ Login User ------------------------------------------------------------- #
 
 @pytest.mark.asyncio
 async def test_login_user():
@@ -47,12 +47,12 @@ async def test_login_user():
     print(response.text)  # This will print the error message returned by FastAPI, if any
 
 
-# @pytest.mark.asyncio
-# async def test_login_invalid_user():
-#     async with AsyncClient(app=app, base_url="http://testserver") as client:
-#         response = await client.post(
-#             "/api/login",
-#             data={"username": "invaliduser", "password": "wrongpassword"}
-#         )
-#     assert response.status_code == 401
-#     assert response.json()["detail"] == "Invalid credentials"
+@pytest.mark.asyncio
+async def test_login_invalid_user():
+    async with AsyncClient(app=app, base_url="http://testserver") as client:
+        response = await client.post(
+            "/api/login",
+            data={"username": "invaliduser", "password": "wrongpassword"}
+        )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid credentials"

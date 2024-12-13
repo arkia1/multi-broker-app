@@ -45,7 +45,7 @@ const HelpForm = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-14">
+      <div className="max-w-xl mx-auto p-6 bg-white dark:bg-gray-900 shadow-lg rounded-lg mt-14">
         <h2 className="text-3xl font-semibold text-center mb-6 text-indigo-600">
           Contact Us
         </h2>
