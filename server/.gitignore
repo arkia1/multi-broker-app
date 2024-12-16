@@ -80,3 +80,5 @@ dist/
 
 # Node.js (if you have a frontend in the project)
 node_modules/
+# Test folders
+tests/

@@ -59,7 +59,7 @@ const BinanceData = () => {
 
     if (selectedAsset) {
       const newWs = new WebSocket(
-        `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}/${selectedInterval.toLowerCase()}`
+        `ws://multi-broker-app.onrender.com/ws/${selectedAsset.toLowerCase()}/${selectedInterval.toLowerCase()}`
       );
 
       const throttledOnMessage = debounce((event) => {
@@ -117,9 +117,9 @@ const BinanceData = () => {
   ];
 
   return (
-    <div className="p-4 max-w-lg mx-auto font-sans">
+    <div className="flex flex-col items-center w-screen p-4 font-sans">
       <h1 className="text-2xl font-bold mb-2"></h1>
-      <div className=" mb-2 flex items-center space-x-4">
+      <div className="mb-2 flex items-center space-x-4">
         <div className="w-10 h-10 bg-transparent rounded-full flex items-center justify-center">
           {/* Placeholder for broker's logo */}
           <img src={BINANCE_LOGO} alt="" />
@@ -130,7 +130,7 @@ const BinanceData = () => {
           </h2>
         </div>
       </div>
-      <div className="mb-4 flex space-x-4">
+      <div className="w-[30vw] mb-4 flex space-x-4">
         <SearchBar assets={assets} onSelectAsset={setSelectedAsset} />
         <IntervalSelector
           intervals={intervals}
@@ -139,8 +139,8 @@ const BinanceData = () => {
         />
       </div>
       {combinedData.length > 0 && (
-        <div className="relative w-screen h-screen">
-          <div className="absolute top-1/3 left-[12%] transform -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[60vh] max-w-full">
+        <div className="relative w-full h-[60vh] flex justify-center">
+          <div className="w-[70vw] h-full">
             <CandleStickChart chartData={combinedData} />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import axios from "axios";
+import axiosInstance from "../../api/axios"; // Use the Axios instance with interceptor
 import { SelectedAssetContext } from "../../contexts/SelectedAssetContext";
 import { FaTrash } from "react-icons/fa";
 
@@ -15,12 +15,9 @@ const UserWatchlist = () => {
     const fetchWatchlist = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const response = await axios.get(
-          "http://localhost:8000/api/watchlist",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axiosInstance.get("/watchlist", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setWatchlist(response.data.assets);
       } catch (error) {
         console.error(
@@ -32,7 +29,7 @@ const UserWatchlist = () => {
 
     const fetchAssets = async () => {
       try {
-        const response = await axios.get(
+        const response = await axiosInstance.get(
           "https://api.binance.com/api/v3/exchangeInfo"
         );
         const assetList = response.data.symbols.map((symbol) => symbol.symbol);
@@ -61,8 +58,8 @@ const UserWatchlist = () => {
     setError("");
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.post(
-        "http://localhost:8000/api/watchlist",
+      const response = await axiosInstance.post(
+        "/watchlist",
         { asset: newAsset },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -82,12 +79,9 @@ const UserWatchlist = () => {
   const handleRemoveAsset = async (asset) => {
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.delete(
-        `http://localhost:8000/api/watchlist/${asset}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axiosInstance.delete(`/watchlist/${asset}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setWatchlist(response.data.assets);
     } catch (error) {
       console.error(

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 import propTypes from "prop-types";
+import axiosInstance from "../api/axios";
 
 const UserContext = createContext();
 
@@ -17,7 +17,7 @@ export const UserProvider = ({ children }) => {
           setLoading(false);
           return;
         }
-        const response = await axios.get("http://localhost:8000/api/profile", {
+        const response = await axiosInstance.get("/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(response.data);

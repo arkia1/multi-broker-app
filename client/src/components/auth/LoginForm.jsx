@@ -1,16 +1,16 @@
 import { useState } from "react";
 import AuthLayout from "../../layouts/AuthLayout";
-import axios from "axios"; // Add axios for API requests
+import axiosInstance from "../../api/axios"; // Use the Axios instance with interceptor
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
-    username: "", // Changed email to username
+    username: "",
     password: "",
   });
 
-  const [error, setError] = useState(""); // To handle error messages
-  const [success, setSuccess] = useState(""); // To handle success message
-  const [loading, setLoading] = useState(false); // To handle loading state
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,29 +20,16 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(""); // Reset error message on each submit attempt
-    setSuccess(""); // Reset success message on each submit attempt
+    setError("");
+    setSuccess("");
 
     try {
-      // Make a POST request to the backend login API
-      const response = await axios.post(
-        "http://localhost:8000/api/login",
-        formData
-      );
-
-      // Handle success (store JWT token or redirect, etc.)
+      const response = await axiosInstance.post("/login", formData);
       const { access_token } = response.data;
-      console.log("Access Token:", access_token);
-
-      // Optionally store the token (localStorage, state, or context)
       localStorage.setItem("access_token", access_token);
-
-      // Set success message
       setSuccess("Login successful! Redirecting...");
-
-      // Optionally, redirect after successful login
       setTimeout(() => {
-        window.location.href = "/dashboard"; // Redirect to another page if needed
+        window.location.href = "/dashboard";
       }, 2000);
     } catch (err) {
       setError("Invalid credentials, please try again.");
@@ -54,7 +41,7 @@ const LoginForm = () => {
 
   return (
     <AuthLayout title="Login">
-      <form onSubmit={handleSubmit} className="space-y-4 ">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="username" className="auth-input-label">
             Username
@@ -87,19 +74,14 @@ const LoginForm = () => {
         </div>
 
         {error && <div className="text-red-500 text-sm">{error}</div>}
-
         {success && <div className="text-green-500 text-sm">{success}</div>}
 
-        <button
-          type="submit"
-          className="auth-submit-button"
-          disabled={loading} // Disable button while loading
-        >
+        <button type="submit" className="auth-submit-button" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
       <a href="/register" className="text-indigo-500 text-sm">
-        Don&apos;t have an account ? click here!
+        Don&apos;t have an account? Click here!
       </a>
     </AuthLayout>
   );
