@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "../../api/axios";
 import MainLayout from "../../layouts/MainLayout";
+import axiosInstance from "../../api/axios";
 
 const fetchNews = async (page = 1) => {
   try {
-    const response = await axios.get("/news", {
+    const response = await axiosInstance.get("/news", {
       params: { page, page_size: 10, sort_by: "publishedAt", language: "en" },
     });
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AuthLayout from "../../layouts/AuthLayout"; // Ensure this component is set up correctly
+import axiosInstance from "../../api/axios";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -24,33 +25,24 @@ const SignupForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await axiosInstance.post("/register", formData);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response.status === 200 || response.status === 201) {
+        const data = response.data;
         setSuccess("User registered successfully!"); // Display success message
         console.log("User registered:", data);
-        setFormData({ name: "", email: "", password: "" }); // Reset form
+        setFormData({ username: "", email: "", password: "" }); // Reset form
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || "An error occurred during registration.");
+        setError("An error occurred during registration.");
       }
     } catch (err) {
       setError(
-        err.message ||
-          "Failed to connect to the server. Please try again later."
+        err.response?.data?.message || "An error occurred during registration."
       );
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <AuthLayout
       title="Sign Up"

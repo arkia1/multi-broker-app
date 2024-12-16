@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { SelectedAssetContext } from "../../contexts/SelectedAssetContext";
 import NewsCard from "./NewsCard";
 import Modal from "../global/Modal";
+import axiosInstance from "../../api/axios";
 
 const AssetNews = () => {
   const { selectedAsset } = useContext(SelectedAssetContext);
@@ -18,7 +18,7 @@ const AssetNews = () => {
         console.log("Assets to fetch news for:", assets);
 
         const newsPromises = assets.map((asset) =>
-          axios.get(`http://localhost:8000/api/news/${asset}`, {
+          axiosInstance.get(`/news/${asset}`, {
             headers: {
               Accept: "application/json",
             },

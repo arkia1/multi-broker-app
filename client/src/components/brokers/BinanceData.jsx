@@ -59,7 +59,7 @@ const BinanceData = () => {
 
     if (selectedAsset) {
       const newWs = new WebSocket(
-        `ws://localhost:8000/ws/${selectedAsset.toLowerCase()}/${selectedInterval.toLowerCase()}`
+        `ws://multi-broker-app.onrender.com/ws/${selectedAsset.toLowerCase()}/${selectedInterval.toLowerCase()}`
       );
 
       const throttledOnMessage = debounce((event) => {
