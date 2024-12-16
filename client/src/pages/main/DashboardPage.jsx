@@ -40,10 +40,10 @@ const DashboardPage = () => {
             <option value="oanda">Oanda ( coming soon! )</option>
           </select>
         </div>
-        <div className="w-full">
+        <div className="w-full md:mb-28">
           <BinanceData />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 md:mt- lg:mt-4">
           <div className="flex flex-col justify-center items-center rounded-md bg-gray-200 dark:bg-gray-800 w-[70%] h-[40vh] lg:ml-[25%]">
             <Watchlist />
           </div>

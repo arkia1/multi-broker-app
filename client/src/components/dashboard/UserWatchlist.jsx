@@ -124,7 +124,7 @@ const UserWatchlist = () => {
         />
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         {filteredAssets.length > 0 && (
-          <ul className="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          <ul className="absolute z-10 w-full bg-white dark:bg-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
             {filteredAssets.map((asset) => (
               <li
                 key={asset}
@@ -143,11 +143,11 @@ const UserWatchlist = () => {
           Add Asset
         </button>
       </div>
-      <ul className="w-full space-y-2">
+      <ul className="w-full space-y-2 max-h-80 overflow-y-auto bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-md">
         {watchlist.map((asset, index) => (
           <li
             key={index}
-            className="bg-white dark:bg-gray-700 flex justify-between items-center p-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+            className="bg-white dark:bg-gray-700 flex justify-between items-center p-2 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
             onClick={() => setSelectedAsset(asset)}
           >
             <span className="dark:text-gray-200">{asset}</span>
