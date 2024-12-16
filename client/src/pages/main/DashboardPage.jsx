@@ -40,17 +40,19 @@ const DashboardPage = () => {
             <option value="oanda">Oanda ( coming soon! )</option>
           </select>
         </div>
-        <div className="">
+        <div className="w-full">
           <BinanceData />
         </div>
-        <div className="absolute grid md:grid-cols-3 bottom-1 gap-2 right-20">
-          <div className="flex flex-col flex-1 justify-center items-center rounded-md bg-red-400 w-[30vw] h-[40vh]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 mt-4">
+          <div className="flex flex-col justify-center items-center rounded-md bg-gray-200 dark:bg-gray-800 w-[70%] h-[40vh] lg:ml-[25%]">
             <Watchlist />
           </div>
-          <AssetNews />
-          <div className="flex flex-col flex-1 justify-center items-center rounded-md bg-red-400 w-[30vw] h-[40vh]">
-            Open orders, order history, etc.
+          <div className="flex flex-col justify-center items-center rounded-md bg-gray-200 dark:bg-gray-800 w-[70%] h-[40vh] ">
+            <AssetNews />
           </div>
+          {/* <div className="flex flex-col justify-center items-center rounded-md bg-gray-200 dark:bg-gray-800 w-full h-[40vh]">
+            Open orders, order history, etc.
+          </div> */}
         </div>
       </div>
 

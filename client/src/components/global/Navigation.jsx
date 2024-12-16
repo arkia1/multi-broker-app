@@ -42,9 +42,9 @@ const Navigation = () => {
             {/* <a href="#accounts" className="nav-option">
               Accounts
             </a> */}
-            <a href="/blogs" className="nav-option">
+            {/* <a href="/blogs" className="nav-option">
               Blogs
-            </a>
+            </a> */}
             <a href="/market-news" className="nav-option">
               Market News
             </a>
@@ -71,9 +71,9 @@ const Navigation = () => {
             {/* <a href="#accounts" className="block nav-option">
               Accounts
             </a> */}
-            <a href="/blogs" className="block nav-option">
+            {/* <a href="/blogs" className="block nav-option">
               Blogs
-            </a>
+            </a> */}
             <a href="/market-news" className="block nav-option">
               Market News
             </a>
